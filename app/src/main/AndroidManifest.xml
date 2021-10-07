@@ -9,6 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TimeCapsule">
+        <activity android:name=".CreateCapsuleActivity"></activity>
+        <receiver android:name=".AlarmReceiver" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
