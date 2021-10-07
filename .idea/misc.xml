@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/jbcal/AndroidStudioProjects/TimeCapsule/app/src/main/res/layout/activity_login.xml" value="0.35260416666666666" />
         <entry key="..\:/Users/jbcal/AndroidStudioProjects/TimeCapsule/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/jbcal/AndroidStudioProjects/TimeCapsule/app/src/main/res/layout/activity_register.xml" value="0.36666666666666664" />
       </map>
     </option>
   </component>

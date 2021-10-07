@@ -12,6 +12,12 @@
         <activity android:name=".CreateCapsuleActivity"></activity>
         <receiver android:name=".AlarmReceiver" />
         <activity
+            android:name=".RegisterActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" /> <!-- hmmm exported? -->
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
