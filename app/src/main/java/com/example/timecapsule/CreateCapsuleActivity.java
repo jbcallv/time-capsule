@@ -24,6 +24,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "0";
 
+    //comment
+
     Calendar calendar;
     TextView txtDate, txtTime;
     private int year, month, day, hour, minute;
