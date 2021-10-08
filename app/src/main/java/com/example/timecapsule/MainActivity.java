@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     private Button saveButton;
 
     private DatabaseReference database;
-    private StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
