@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -38,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com/").getReference("Users");
+        database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com").getReference("Users");
 
         nameEditText = (EditText) findViewById(R.id.activity_register_et_name);
         emailEditText = (EditText) findViewById(R.id.activity_register_et_email);
@@ -46,40 +49,56 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordEditText = (EditText) findViewById(R.id.activity_register_et_confirm_password);
         registerButton = (Button) findViewById(R.id.activity_register_btn_register);
 
-        // confirm text in boxes
-        // confirm strong password
-        // confirm password
-
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createAccountEmailPassword(emailEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                createAccountEmailPassword(nameEditText.getText().toString(), emailEditText.getText().toString(),
+                        passwordEditText.getText().toString(), confirmPasswordEditText.getText().toString());
             }
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if(currentUser != null){
-            currentUser.reload();
+    private void createAccountEmailPassword(String name, String email, String password, String confirmPassword) {
+        if (name.isEmpty()) {
+            nameEditText.setError("Please enter your name");
+            return;
         }
-    }
+        if (email.isEmpty()) {
+            emailEditText.setError("Please enter your email address");
+            return;
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailEditText.setError("Please enter a valid email address");
+            return;
+        }
+        if (password.isEmpty()) {
+            passwordEditText.setError("Please enter a password");
+            return;
+        }
+        if (password.length() < 8) {
+            passwordEditText.setError("Password must be greater than 8 characters");
+        }
+        if (confirmPassword.isEmpty()) {
+            confirmPasswordEditText.setError("Please confirm your password");
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            confirmPasswordEditText.setError("Given passwords do not match");
+            return;
+        }
 
-    private void createAccountEmailPassword(String email, String password) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 // make sure password is >=6 chars or account creation will fail
                 if (task.isSuccessful()) {
                     Log.i(TAG, "account creation successful");
-                    // create user object here containing name, email, and anything else
+
+                    User user = new User(name.trim(), email.trim());
 
                     // add user to database and verify email
-                    database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    //database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener <Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
@@ -91,14 +110,28 @@ public class RegisterActivity extends AppCompatActivity {
                                         "Please check your email to verify your account",
                                         Toast.LENGTH_LONG).show();
 
+                                FirebaseAuth.getInstance().signOut();
                                 goToLoginScreen();
+                            }
+                            else {
+                                Log.e(TAG, "Couldn't write data to the database");
                             }
                         }
                     });
                 }
                 else {
-                    Log.w(TAG, "account creation unsuccessful");
-                    goToLoginScreen();
+                    try {
+                        throw task.getException();
+                    }
+                    catch (FirebaseAuthUserCollisionException emailAlreadyExists) {
+                        emailEditText.setError("An account already exists for this email address");
+                    }
+                    catch (FirebaseAuthWeakPasswordException incorrectPassword) {
+                        passwordEditText.setError("Weak password");
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
