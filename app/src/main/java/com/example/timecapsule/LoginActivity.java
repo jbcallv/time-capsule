@@ -66,6 +66,13 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetPassword(emailEditText.getText().toString().trim());
+            }
+        });
     }
 
     @Override
@@ -133,5 +140,24 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void resetPassword(String email) {
+        if (email.isEmpty()) {
+            Toast.makeText(this, "Please enter your email to send password reset link", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // this is secure because the only way you can reset the password
+        // is if you are signed in to the user's email
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Password reset email sent", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 }
