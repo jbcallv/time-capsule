@@ -2,43 +2,51 @@ package com.example.timecapsule;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-//Making a test comment to see if I can push correctly.
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private EditText capsuleDataEditText;
-    private Button saveButton;
-
-    private DatabaseReference database;
-    //baba booey
+    private Button signOutButton;
+    private Button createCapsuleButton;
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com/").getReference();
-        Log.i(TAG, "connected to database");
+        signOutButton = (Button) findViewById(R.id.activity_main_btn_sign_out);
+        createCapsuleButton = (Button) findViewById(R.id.activity_main_btn_create_capsule);
 
-        capsuleDataEditText = (EditText) findViewById(R.id.activity_main_et_data);
-        saveButton = (Button) findViewById(R.id.activity_main_btn_save);
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        createCapsuleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.child("test").setValue(capsuleDataEditText.getText().toString());
-                Log.i(TAG, "pushed values to database");
+                Intent intent = new Intent(MainActivity.this, CreateCapsuleActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
