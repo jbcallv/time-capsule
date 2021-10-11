@@ -25,6 +25,7 @@ import org.w3c.dom.Text;
 
 public class LoginActivity extends AppCompatActivity {
 
+    // conflict test
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     private FirebaseAuth auth;

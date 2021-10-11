@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button signOutButton;
     private Button createCapsuleButton;
-
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
