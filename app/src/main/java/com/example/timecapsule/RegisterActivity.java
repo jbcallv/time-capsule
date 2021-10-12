@@ -78,6 +78,12 @@ public class RegisterActivity extends AppCompatActivity {
         if (password.length() < 8) {
             passwordEditText.setError("Password must be greater than 8 characters");
         }
+        if (!password.matches(".*\\d.*")) {
+            passwordEditText.setError("Password must contain at least one numeric value");
+        }
+        if (!password.matches(".*[!@#$%^&*].*")) {
+            passwordEditText.setError("Password must contain at least one special character");
+        }
         if (confirmPassword.isEmpty()) {
             confirmPasswordEditText.setError("Please confirm your password");
             return;
@@ -97,7 +103,6 @@ public class RegisterActivity extends AppCompatActivity {
                     User user = new User(name.trim(), email.trim());
 
                     // add user to database and verify email
-                    //database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                     database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener <Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

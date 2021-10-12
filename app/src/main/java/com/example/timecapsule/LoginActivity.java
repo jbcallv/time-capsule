@@ -102,10 +102,6 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setError("Please enter your password");
             return;
         }
-        if (password.length() < 8) {
-            passwordEditText.setError("Password must be greater than 8 characters");
-            return;
-        }
 
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
