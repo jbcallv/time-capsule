@@ -77,12 +77,15 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if (password.length() < 8) {
             passwordEditText.setError("Password must be greater than 8 characters");
+            return;
         }
         if (!password.matches(".*\\d.*")) {
             passwordEditText.setError("Password must contain at least one numeric value");
+            return;
         }
         if (!password.matches(".*[!@#$%^&*].*")) {
             passwordEditText.setError("Password must contain at least one special character");
+            return;
         }
         if (confirmPassword.isEmpty()) {
             confirmPasswordEditText.setError("Please confirm your password");
