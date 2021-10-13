@@ -10,6 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TimeCapsule">
         <activity android:name=".CreateCapsuleActivity"></activity>
+        <activity android:name=".ViewCapsulesActivity"></activity>
         <receiver android:name=".AlarmReceiver" />
         <activity
             android:name=".RegisterActivity"
