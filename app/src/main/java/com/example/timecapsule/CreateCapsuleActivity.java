@@ -1,5 +1,9 @@
 package com.example.timecapsule;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlarmManager;
@@ -10,12 +14,20 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -23,12 +35,16 @@ import java.util.Calendar;
 public class CreateCapsuleActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "0";
-
-    //comment
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     Calendar calendar;
+    ImageView imgView;
     TextView txtDate, txtTime;
+    EditText txtTitle, txtDesc;
     private int year, month, day, hour, minute;
+
+    ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +54,11 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         txtDate=(TextView) findViewById(R.id.dateText);
         txtTime=(TextView) findViewById(R.id.timeText);
 
+        txtTitle = (EditText) findViewById(R.id.titleText);
+        txtDesc = (EditText) findViewById(R.id.descriptionText);
+
+        imgView = (ImageView) findViewById(R.id.image_view);
+
         calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
@@ -45,10 +66,36 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
 
+        String userId = UserId.getUid();
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Bundle extras = result.getData().getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    imgView.setImageBitmap(imageBitmap);
+                }
+            }
+        });
+
+
+
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("Users").child(userId).child("capsules");
+
         createNotificationChannel();
+
+
     }
 
+
     public void addCapsule(View v) {
+        DatabaseReference newCapsuleRef = myRef.push();
+        newCapsuleRef.child("title").setValue(txtTitle.getText().toString());
+        newCapsuleRef.child("description").setValue(txtDesc.getText().toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
         // set up notification
         Context context = this.getApplicationContext();
@@ -108,4 +155,24 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 }, hour, minute, false);
         timePickerDialog.show();
     }
+
+    public void takePicture(View v) {
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            activityResultLauncher.launch(intent);
+        } else {
+            Toast.makeText(CreateCapsuleActivity.this, "There is no camera available",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void addRecording(View v) {
+
+        Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
+        startActivity(intent);
+
+    }
+
+
 }
