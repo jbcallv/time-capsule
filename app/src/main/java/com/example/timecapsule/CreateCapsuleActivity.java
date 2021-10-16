@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -42,6 +43,7 @@ import java.util.Date;
 
 public class CreateCapsuleActivity extends AppCompatActivity {
 
+    private static final String TAG = CreateCapsuleActivity.class.getSimpleName();
     private static final String CHANNEL_ID = "0";
     FirebaseDatabase database;
     DatabaseReference myRef;
@@ -173,7 +175,11 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     public void takePicture(View v) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+
+        // wtf :'( I had to comment out that method to make it work
+
+        //if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            Log.i(TAG, "in first");
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -191,7 +197,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 activityResultLauncher.launch(takePictureIntent);
             }
-        }
+        //}
     }
 
     private File createImageFile() throws IOException {
@@ -236,6 +242,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         imgView.setImageBitmap(bitmap);
 
     }
+
 
     public void addRecording(View v) {
 

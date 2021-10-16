@@ -1,10 +1,12 @@
 package com.example.timecapsule;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,20 +15,36 @@ import androidx.core.content.ContextCompat;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.IOException;
 
 public class RecordActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "AudioRecordTest";
+    private static final String TAG = RecordActivity.class.getSimpleName();
+
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+
     private static String fileName = null;
 
-    private FloatingActionButton recordButton, playButton;
+    private FloatingActionButton recordButton;
+    private FloatingActionButton playButton;
+    private Button uploadRecordingButton;
+
     private MediaRecorder recorder = null;
     private MediaPlayer player = null;
+
     boolean mStartRecording = true;
     boolean mStartPlaying = true;
 
@@ -34,24 +52,31 @@ public class RecordActivity extends AppCompatActivity {
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
 
+    private FirebaseAuth auth;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        recordButton = (FloatingActionButton) findViewById(R.id.button);
-        playButton = (FloatingActionButton) findViewById(R.id.button2);
+        //storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
+
+        recordButton = (FloatingActionButton) findViewById(R.id.activity_record_btn_record);
+        playButton = (FloatingActionButton) findViewById(R.id.activity_record_btn_play);
+        uploadRecordingButton = (Button) findViewById(R.id.activity_record_btn_upload_recording);
 
         // Record to the external cache directory for visibility
         fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/audiorecordtest.3gp";
+        //fileName = auth.getCurrentUser().getUid().toString() + ".mp4";
+        fileName += "/capsuleName.mp4";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         recordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-
                 onRecord(mStartRecording);
                 if (mStartRecording) {
                     recordButton.setImageResource(R.drawable.ic_stop); //stop recording
@@ -66,8 +91,8 @@ public class RecordActivity extends AppCompatActivity {
         });
 
         playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-
                 onPlay(mStartPlaying);
                 if (mStartPlaying) {
                     playButton.setImageResource(R.drawable.ic_stop); //stop playing
@@ -76,6 +101,13 @@ public class RecordActivity extends AppCompatActivity {
                 }
                 mStartPlaying = !mStartPlaying;
 
+            }
+        });
+
+        uploadRecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadAudio();
             }
         });
     }
@@ -88,7 +120,9 @@ public class RecordActivity extends AppCompatActivity {
                 permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
         }
-        if (!permissionToRecordAccepted ) finish();
+        if (!permissionToRecordAccepted ) {
+            finish();
+        }
 
     }
 
@@ -111,11 +145,12 @@ public class RecordActivity extends AppCompatActivity {
     private void startPlaying() {
         player = new MediaPlayer();
         try {
+            Log.i(TAG, "preparing to play");
             player.setDataSource(fileName);
             player.prepare();
             player.start();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e(TAG, "prepare() failed");
         }
     }
 
@@ -127,14 +162,15 @@ public class RecordActivity extends AppCompatActivity {
     private void startRecording() {
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        //recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try {
             recorder.prepare();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e(TAG, "prepare() failed");
         }
 
         recorder.start();
@@ -159,5 +195,24 @@ public class RecordActivity extends AppCompatActivity {
             player.release();
             player = null;
         }
+    }
+
+    private void uploadAudio() {
+        Toast.makeText(this, "uploading audio", Toast.LENGTH_LONG).show();
+        StorageReference filePath = storageReference.child("audio").child(fileName);
+        Uri uri = Uri.fromFile(new File(fileName));
+
+        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "audio upload successful");
+                }
+                else {
+                    Log.e(TAG, "audio upload unsuccessful");
+                }
+            }
+        });
+
     }
 }

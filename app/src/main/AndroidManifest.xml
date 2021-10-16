@@ -17,6 +17,11 @@
         android:theme="@style/Theme.TimeCapsule">
 
         <receiver android:name=".AlarmReceiver" />
+
+        <activity android:name=".RecordActivity" android:theme="@style/RecorderTheme"></activity>
+
+        <activity android:name=".CreateCapsuleActivity"></activity>
+        <activity android:name=".ViewCapsulesActivity"></activity>
         <activity
             android:name=".RegisterActivity"
             android:exported="true" />
