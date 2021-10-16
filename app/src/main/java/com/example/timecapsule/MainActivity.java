@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button signOutButton;
     private Button createCapsuleButton;
+    private Button viewCapsulesButton;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +30,21 @@ public class MainActivity extends AppCompatActivity {
 
         signOutButton = (Button) findViewById(R.id.activity_main_btn_sign_out);
         createCapsuleButton = (Button) findViewById(R.id.activity_main_btn_create_capsule);
+        viewCapsulesButton = (Button) findViewById(R.id.activity_main_btn_view_capsules);
 
         createCapsuleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, CreateCapsuleActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        viewCapsulesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ViewCapsulesActivity.class);
                 startActivity(intent);
                 finish();
             }

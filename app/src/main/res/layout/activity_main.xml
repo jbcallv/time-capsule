@@ -31,6 +31,17 @@
         app:layout_constraintVertical_bias="0.377" />
 
     <Button
+        android:id="@+id/activity_main_btn_view_capsules"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/onyx"
+        android:text="View Capsules"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_create_capsule" />
+
+    <Button
         android:id="@+id/activity_main_btn_sign_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -41,4 +52,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.099" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
