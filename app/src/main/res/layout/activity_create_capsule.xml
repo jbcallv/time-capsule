@@ -21,7 +21,8 @@
         android:id="@+id/imageCamera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/light_grey"
+        android:onClick="takePicture"
+        android:backgroundTint="#00000000"
         app:layout_constraintBottom_toBottomOf="@+id/image_view"
         app:layout_constraintEnd_toEndOf="@+id/image_view"
         app:layout_constraintStart_toStartOf="@+id/image_view"
@@ -121,6 +122,18 @@
         app:layout_constraintTop_toTopOf="@+id/clockIcon"
         app:layout_constraintStart_toEndOf="@+id/clockIcon" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_recording_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:backgroundTint="@color/light_grey"
+        android:onClick="addRecording"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_mic" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
