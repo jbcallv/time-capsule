@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
@@ -32,22 +33,29 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 public class CreateCapsuleActivity extends AppCompatActivity {
 
     private static final String TAG = CreateCapsuleActivity.class.getSimpleName();
     private static final String CHANNEL_ID = "0";
 
+    private StorageReference storageReference;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
 
@@ -72,12 +80,16 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private String currentPhotoPath;
 
+    private boolean imageUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_capsule);
 
+        imageUploaded = false;
+
+        storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(auth.getCurrentUser().getUid()).child("capsules");
 
@@ -142,6 +154,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     setImageViewPicture();
+
+                    imageUploaded = true;
                 }
             }
         });
@@ -156,6 +170,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
         setUpNotification();
+        uploadImage();
     }
 
     private void setUpNotification() {
@@ -216,33 +231,30 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
 
-        // wtf :'( I had to comment out that method to make it work
-
-        //if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            Log.i(TAG, "in first");
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
-                        Toast.LENGTH_SHORT).show();
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.timecapsule.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                activityResultLauncher.launch(takePictureIntent);
-            }
-        //}
+        // Create the File where the photo should go
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            // Error occurred while creating the File
+            Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
+                    Toast.LENGTH_SHORT).show();
+        }
+        // Continue only if the File was successfully created
+        if (photoFile != null) {
+            Uri photoURI = FileProvider.getUriForFile(this,
+                    "com.example.timecapsule.fileprovider",
+                    photoFile);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            activityResultLauncher.launch(takePictureIntent);
+        }
     }
 
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        // create a better image name?
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -285,5 +297,22 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private void addRecording() {
         Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
         startActivity(intent);
+    }
+
+    private void uploadImage() {
+        StorageReference filePath = storageReference.child("images").child(auth.getCurrentUser().getUid().toString()).child(UUID.randomUUID().toString());
+        Uri uri = Uri.fromFile(new File(currentPhotoPath));
+
+        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "image upload successful");
+                }
+                else {
+                    Log.e(TAG, "image upload unsuccessful");
+                }
+            }
+        });
     }
 }

@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ViewCapsulesActivity extends AppCompatActivity {
 
+    // help on downloading files:
+    // https://stackoverflow.com/questions/39905719/how-to-download-a-file-from-firebase-storage-to-the-external-storage-of-android
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);

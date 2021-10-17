@@ -31,11 +31,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 public class RecordActivity extends AppCompatActivity {
 
     private static final String TAG = RecordActivity.class.getSimpleName();
 
+    private FirebaseAuth auth;
     private StorageReference storageReference;
 
     private static String fileName;
@@ -59,15 +61,17 @@ public class RecordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
+        auth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
 
         recordButton = (FloatingActionButton) findViewById(R.id.activity_record_btn_record);
         playButton = (FloatingActionButton) findViewById(R.id.activity_record_btn_play);
         uploadRecordingButton = (Button) findViewById(R.id.activity_record_btn_upload_recording);
 
+        // TODO: find better storage location
         // Record to the external cache directory for visibility
         fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/capsuleName.mp4";
+        fileName += "/audioFile";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
@@ -194,7 +198,8 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     private void uploadAudio() {
-        StorageReference filePath = storageReference.child("audio").child(fileName);
+        // TODO: change uuid.random to the unique ID of the capsule and set it as the child
+        StorageReference filePath = storageReference.child("audio").child(auth.getCurrentUser().getUid().toString()).child(UUID.randomUUID().toString());
         Uri uri = Uri.fromFile(new File(fileName));
 
         filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
