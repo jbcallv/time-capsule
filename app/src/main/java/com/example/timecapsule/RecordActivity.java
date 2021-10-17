@@ -2,8 +2,10 @@ package com.example.timecapsule;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.icu.text.AlphabeticIndex;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -34,33 +36,29 @@ public class RecordActivity extends AppCompatActivity {
 
     private static final String TAG = RecordActivity.class.getSimpleName();
 
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private StorageReference storageReference;
 
-    private static String fileName = null;
+    private static String fileName;
 
     private FloatingActionButton recordButton;
     private FloatingActionButton playButton;
     private Button uploadRecordingButton;
 
-    private MediaRecorder recorder = null;
-    private MediaPlayer player = null;
+    private MediaRecorder recorder;
+    private MediaPlayer player;
 
-    boolean mStartRecording = true;
-    boolean mStartPlaying = true;
+    private boolean mStartRecording = true;
+    private boolean mStartPlaying = true;
 
-    // Requesting permission to RECORD_AUDIO
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
-
-    private FirebaseAuth auth;
-    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        //storageReference = FirebaseStorage.getInstance().getReference();
         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
 
         recordButton = (FloatingActionButton) findViewById(R.id.activity_record_btn_record);
@@ -69,7 +67,6 @@ public class RecordActivity extends AppCompatActivity {
 
         // Record to the external cache directory for visibility
         fileName = getExternalCacheDir().getAbsolutePath();
-        //fileName = auth.getCurrentUser().getUid().toString() + ".mp4";
         fileName += "/capsuleName.mp4";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
@@ -108,6 +105,7 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 uploadAudio();
+                finish();
             }
         });
     }
@@ -162,7 +160,6 @@ public class RecordActivity extends AppCompatActivity {
     private void startRecording() {
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        //recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -172,7 +169,6 @@ public class RecordActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e(TAG, "prepare() failed");
         }
-
         recorder.start();
     }
 
@@ -198,7 +194,6 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     private void uploadAudio() {
-        Toast.makeText(this, "uploading audio", Toast.LENGTH_LONG).show();
         StorageReference filePath = storageReference.child("audio").child(fileName);
         Uri uri = Uri.fromFile(new File(fileName));
 
@@ -213,6 +208,5 @@ public class RecordActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 }

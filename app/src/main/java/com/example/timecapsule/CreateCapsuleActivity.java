@@ -131,6 +131,9 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 saveAndAddCapsule();
+                Intent intent = new Intent(CreateCapsuleActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
@@ -145,24 +148,25 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         createNotificationChannel();
     }
 
-    public void saveAndAddCapsule() {
+    private void saveAndAddCapsule() {
         DatabaseReference newCapsuleRef = databaseReference.push();
         newCapsuleRef.child("title").setValue(titleEditText.getText().toString());
         newCapsuleRef.child("description").setValue(descriptionEditText.getText().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
-        // set up notification
+        setUpNotification();
+    }
+
+    private void setUpNotification() {
         Context context = this.getApplicationContext();
         AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, (int)System.currentTimeMillis(), intent, 0);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
-
     }
 
     private void createNotificationChannel() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
@@ -175,7 +179,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         }
     }
 
-    public void showDatePickerDialog() {
+    private void showDatePickerDialog() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -191,7 +195,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    public void showTimePickerDialog() {
+    private void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
@@ -208,7 +212,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    public void takePicture() {
+    private void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
 
@@ -278,7 +282,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         imgView.setImageBitmap(bitmap);
     }
 
-    public void addRecording() {
+    private void addRecording() {
         Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
         startActivity(intent);
     }
