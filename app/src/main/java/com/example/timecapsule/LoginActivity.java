@@ -25,7 +25,6 @@ import org.w3c.dom.Text;
 
 public class LoginActivity extends AppCompatActivity {
 
-    // conflict test
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     private FirebaseAuth auth;
@@ -48,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         logInButton = (Button) findViewById(R.id.activity_login_btn_login);
         forgotPasswordTextView = (TextView) findViewById(R.id.activity_login_tv_forgot_password);
         registerTextView = (TextView) findViewById(R.id.activity_login_tv_register);
-
 
         // confirm email and password entered
         logInButton.setOnClickListener(new View.OnClickListener() {
@@ -88,8 +86,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signIn(String email, String password) {
-        FirebaseUser user = auth.getCurrentUser();
-
         if (email.isEmpty()) {
             emailEditText.setError("Please enter your email");
             return;
@@ -103,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        FirebaseUser user = auth.getCurrentUser();
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {

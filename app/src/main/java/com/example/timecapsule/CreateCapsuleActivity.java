@@ -26,11 +26,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,20 +47,30 @@ public class CreateCapsuleActivity extends AppCompatActivity {
 
     private static final String TAG = CreateCapsuleActivity.class.getSimpleName();
     private static final String CHANNEL_ID = "0";
-    FirebaseDatabase database;
-    DatabaseReference myRef;
 
-    Calendar calendar;
-    ImageView imgView;
-    TextView txtDate, txtTime;
-    EditText txtTitle, txtDesc;
-    private int year, month, day, hour, minute;
-
+    private DatabaseReference databaseReference;
     private FirebaseAuth auth;
 
-    ActivityResultLauncher<Intent> activityResultLauncher;
+    // not necessary. Will remove later
+    private ImageView imgView;
 
-    String currentPhotoPath;
+    private ImageButton takePictureImageButton;
+    private TextView dateTextView;
+    private TextView timeTextView;
+    private EditText titleEditText;
+    private EditText descriptionEditText;
+    private FloatingActionButton recordFloatingActionButton;
+    private FloatingActionButton addCapsuleFloatingActionButton;
+
+    private Calendar calendar;
+    private int year;
+    private int month;
+    private int day;
+    private int hour;
+    private int minute;
+
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private String currentPhotoPath;
 
 
     @Override
@@ -67,15 +79,15 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_capsule);
 
         auth = FirebaseAuth.getInstance();
-        String userId = auth.getCurrentUser().getUid();
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(auth.getCurrentUser().getUid()).child("capsules");
 
-        txtDate=(TextView) findViewById(R.id.dateText);
-        txtTime=(TextView) findViewById(R.id.timeText);
-
-        txtTitle = (EditText) findViewById(R.id.titleText);
-        txtDesc = (EditText) findViewById(R.id.descriptionText);
-
-        imgView = (ImageView) findViewById(R.id.image_view);
+        takePictureImageButton = (ImageButton) findViewById(R.id.activity_create_capsule_ibtn_take_picture);
+        dateTextView = (TextView) findViewById(R.id.activity_create_capsule_tv_choose_date);
+        timeTextView = (TextView) findViewById(R.id.activity_create_capsule_tv_choose_time);
+        titleEditText = (EditText) findViewById(R.id.activity_create_capsule_et_title);
+        descriptionEditText = (EditText) findViewById(R.id.activity_create_capsule_et_description);
+        recordFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_record);
+        addCapsuleFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_save);
 
         calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
@@ -84,32 +96,59 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
 
+        // not needed. Will delete later
+        imgView = (ImageView) findViewById(R.id.image_view);
 
+        takePictureImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                takePicture();
+            }
+        });
+
+        dateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog();
+            }
+        });
+
+        timeTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showTimePickerDialog();
+            }
+        });
+
+        recordFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addRecording();
+            }
+        });
+
+        addCapsuleFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveAndAddCapsule();
+            }
+        });
 
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    setPic();
+                    setImageViewPicture();
                 }
             }
         });
-
-
-
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users").child(userId).child("capsules");
-
         createNotificationChannel();
-
-
     }
 
-
-    public void addCapsule(View v) {
-        DatabaseReference newCapsuleRef = myRef.push();
-        newCapsuleRef.child("title").setValue(txtTitle.getText().toString());
-        newCapsuleRef.child("description").setValue(txtDesc.getText().toString());
+    public void saveAndAddCapsule() {
+        DatabaseReference newCapsuleRef = databaseReference.push();
+        newCapsuleRef.child("title").setValue(titleEditText.getText().toString());
+        newCapsuleRef.child("description").setValue(descriptionEditText.getText().toString());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
@@ -136,10 +175,9 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         }
     }
 
-    public void showDatePickerDialog(View v) {
+    public void showDatePickerDialog() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 new DatePickerDialog.OnDateSetListener() {
-
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
@@ -147,17 +185,15 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                         calendar.set(Calendar.MONTH, monthOfYear);
                         calendar.set(Calendar.DAY_OF_MONTH , dayOfMonth);
                         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-                        txtDate.setText(sdf.format(calendar.getTime()));
-
+                        dateTextView.setText(sdf.format(calendar.getTime()));
                     }
                 }, year, month, day);
         datePickerDialog.show();
     }
 
-    public void showTimePickerDialog(View v) {
+    public void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
-
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay,
                                           int minute) {
@@ -166,13 +202,13 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                         calendar.set(Calendar.SECOND, 1);
 
                         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-                        txtTime.setText(sdf.format(calendar.getTime()));
+                        timeTextView.setText(sdf.format(calendar.getTime()));
                     }
                 }, hour, minute, false);
         timePickerDialog.show();
     }
 
-    public void takePicture(View v) {
+    public void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
 
@@ -216,7 +252,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         return image;
     }
 
-    private void setPic() {
+    private void setImageViewPicture() {
         // Get the dimensions of the View
         int targetW = imgView.getWidth();
         int targetH = imgView.getHeight();
@@ -240,16 +276,10 @@ public class CreateCapsuleActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
         imgView.setImageBitmap(bitmap);
-
     }
 
-
-    public void addRecording(View v) {
-
+    public void addRecording() {
         Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
         startActivity(intent);
-
     }
-
-
 }

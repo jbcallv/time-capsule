@@ -27,7 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = RegisterActivity.class.getSimpleName();
 
     private FirebaseAuth auth;
-    private DatabaseReference database;
+    private DatabaseReference databaseReference;
 
     private EditText nameEditText;
     private EditText emailEditText;
@@ -41,7 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com").getReference("Users");
+        databaseReference = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com").getReference("Users");
 
         nameEditText = (EditText) findViewById(R.id.activity_register_et_name);
         emailEditText = (EditText) findViewById(R.id.activity_register_et_email);
@@ -106,7 +106,7 @@ public class RegisterActivity extends AppCompatActivity {
                     User user = new User(name.trim(), email.trim());
 
                     // add user to database and verify email
-                    database.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener <Void>() {
+                    databaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener <Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {

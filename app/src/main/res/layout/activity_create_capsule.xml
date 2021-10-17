@@ -18,10 +18,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/imageCamera"
+        android:id="@+id/activity_create_capsule_ibtn_take_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="takePicture"
         android:backgroundTint="#00000000"
         app:layout_constraintBottom_toBottomOf="@+id/image_view"
         app:layout_constraintEnd_toEndOf="@+id/image_view"
@@ -30,7 +29,7 @@
         app:srcCompat="@drawable/ic_camera" />
 
     <EditText
-        android:id="@+id/titleText"
+        android:id="@+id/activity_create_capsule_et_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -38,13 +37,13 @@
         android:layout_marginBottom="12dp"
         android:hint="@string/name_of_capsule"
         android:maxLines="2"
-        app:layout_constraintBottom_toTopOf="@+id/descriptionText"
+        app:layout_constraintBottom_toTopOf="@+id/activity_create_capsule_et_description"
         app:layout_constraintStart_toStartOf="@+id/image_view"
         app:layout_constraintTop_toBottomOf="@+id/image_view" />
 
 
     <EditText
-        android:id="@+id/descriptionText"
+        android:id="@+id/activity_create_capsule_et_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -52,14 +51,13 @@
         android:layout_marginBottom="24dp"
         android:hint="@string/description"
         android:maxLines="3"
-        app:layout_constraintBottom_toTopOf="@+id/dateText"
+        app:layout_constraintBottom_toTopOf="@+id/activity_create_capsule_tv_choose_date"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleText" />
+        app:layout_constraintTop_toBottomOf="@+id/activity_create_capsule_et_title" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addButton"
-        android:onClick="addCapsule"
+        android:id="@+id/activity_create_capsule_fab_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -74,60 +72,57 @@
 
 
     <ImageView
-        android:id="@+id/calendarIcon"
+        android:id="@+id/activity_create_capsule_img_calendar"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/addButton"
+        app:layout_constraintBottom_toTopOf="@+id/activity_create_capsule_fab_save"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionText"
+        app:layout_constraintTop_toBottomOf="@+id/activity_create_capsule_et_description"
         app:srcCompat="@drawable/ic_calendar" />
 
     <ImageView
-        android:id="@+id/clockIcon"
+        android:id="@+id/activity_create_capsule_img_clock"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calendarIcon"
+        app:layout_constraintTop_toBottomOf="@+id/activity_create_capsule_img_calendar"
         app:srcCompat="@drawable/ic_clock" />
 
     <TextView
-        android:id="@+id/dateText"
+        android:id="@+id/activity_create_capsule_tv_choose_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:paddingTop="24dp"
         android:paddingBottom="24dp"
         android:text="@string/choose_a_date"
-        android:onClick="showDatePickerDialog"
         android:ems="10"
-        app:layout_constraintBottom_toBottomOf="@+id/calendarIcon"
-        app:layout_constraintTop_toTopOf="@+id/calendarIcon"
-        app:layout_constraintStart_toEndOf="@+id/calendarIcon" />
+        app:layout_constraintBottom_toBottomOf="@+id/activity_create_capsule_img_calendar"
+        app:layout_constraintTop_toTopOf="@+id/activity_create_capsule_img_calendar"
+        app:layout_constraintStart_toEndOf="@+id/activity_create_capsule_img_calendar" />
 
     <TextView
-        android:id="@+id/timeText"
+        android:id="@+id/activity_create_capsule_tv_choose_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:paddingTop="24dp"
         android:paddingBottom="24dp"
         android:text="@string/choose_a_time"
-        android:onClick="showTimePickerDialog"
         android:ems="10"
-        app:layout_constraintBottom_toBottomOf="@+id/clockIcon"
-        app:layout_constraintTop_toTopOf="@+id/clockIcon"
-        app:layout_constraintStart_toEndOf="@+id/clockIcon" />
+        app:layout_constraintBottom_toBottomOf="@+id/activity_create_capsule_img_clock"
+        app:layout_constraintTop_toTopOf="@+id/activity_create_capsule_img_clock"
+        app:layout_constraintStart_toEndOf="@+id/activity_create_capsule_img_clock" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_recording_button"
+        android:id="@+id/activity_create_capsule_fab_record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:backgroundTint="@color/light_grey"
-        android:onClick="addRecording"
         android:layout_marginStart="32dp"
         android:layout_marginBottom="32dp"
         android:clickable="true"
