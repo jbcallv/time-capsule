@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.icu.text.AlphabeticIndex;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -59,9 +60,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
 
-    // not necessary. Will remove later
-    private ImageView imgView;
-
     private ImageButton takePictureImageButton;
     private TextView dateTextView;
     private TextView timeTextView;
@@ -77,10 +75,12 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private int hour;
     private int minute;
 
+    // one of these but for recordActivity
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private String currentPhotoPath;
 
     private boolean imageUploaded;
+    private boolean recordingUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +88,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_capsule);
 
         imageUploaded = false;
+        recordingUploaded = false;
 
         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
         auth = FirebaseAuth.getInstance();
@@ -107,9 +108,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         day = calendar.get(Calendar.DAY_OF_MONTH);
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
-
-        // not needed. Will delete later
-        imgView = (ImageView) findViewById(R.id.image_view);
 
         takePictureImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,8 +151,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    setImageViewPicture();
-
                     imageUploaded = true;
                 }
             }
@@ -170,7 +166,9 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
         setUpNotification();
-        uploadImage();
+        if (imageUploaded) {
+            uploadImage();
+        }
     }
 
     private void setUpNotification() {
@@ -268,35 +266,14 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         return image;
     }
 
-    private void setImageViewPicture() {
-        // Get the dimensions of the View
-        int targetW = imgView.getWidth();
-        int targetH = imgView.getHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-
-        BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.max(1, Math.min(photoW/targetW, photoH/targetH));
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        imgView.setImageBitmap(bitmap);
-    }
-
     private void addRecording() {
+        /*
         Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
         startActivity(intent);
+
+        allow intent to return value
+        https://stackoverflow.com/questions/61455381/how-to-replace-startactivityforresult-with-activity-result-apis
+        */
     }
 
     private void uploadImage() {
