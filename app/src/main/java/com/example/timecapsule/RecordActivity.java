@@ -40,7 +40,7 @@ public class RecordActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private StorageReference storageReference;
 
-    private static String fileName;
+    public static String fileName;
 
     private FloatingActionButton recordButton;
     private FloatingActionButton playButton;
@@ -108,7 +108,8 @@ public class RecordActivity extends AppCompatActivity {
         uploadRecordingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadAudio();
+                //uploadAudio();
+                CreateCapsuleActivity.recordingUploaded = true;
                 finish();
             }
         });
@@ -195,23 +196,5 @@ public class RecordActivity extends AppCompatActivity {
             player.release();
             player = null;
         }
-    }
-
-    private void uploadAudio() {
-        // TODO: change uuid.random to the unique ID of the capsule and set it as the child
-        StorageReference filePath = storageReference.child("audio").child(auth.getCurrentUser().getUid().toString()).child(UUID.randomUUID().toString());
-        Uri uri = Uri.fromFile(new File(fileName));
-
-        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Log.i(TAG, "audio upload successful");
-                }
-                else {
-                    Log.e(TAG, "audio upload unsuccessful");
-                }
-            }
-        });
     }
 }

@@ -80,7 +80,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private String currentPhotoPath;
 
     private boolean imageUploaded;
-    private boolean recordingUploaded;
+    public static boolean recordingUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,9 +166,30 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         newCapsuleRef.child("opendatetime").setValue(sdf.format(calendar.getTime()));
 
         setUpNotification();
+        if (recordingUploaded){
+            uploadAudio();
+        }
         if (imageUploaded) {
             uploadImage();
         }
+    }
+
+    private void uploadAudio() {
+        // TODO: change uuid.random to the unique ID of the capsule and set it as the child
+        StorageReference filePath = storageReference.child("audio").child(auth.getCurrentUser().getUid().toString()).child(UUID.randomUUID().toString());
+        Uri uri = Uri.fromFile(new File(RecordActivity.fileName));
+
+        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "audio upload successful");
+                }
+                else {
+                    Log.e(TAG, "audio upload unsuccessful");
+                }
+            }
+        });
     }
 
     private void setUpNotification() {
@@ -267,13 +288,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     }
 
     private void addRecording() {
-        /*
         Intent intent = new Intent(CreateCapsuleActivity.this, RecordActivity.class);
         startActivity(intent);
-
-        allow intent to return value
-        https://stackoverflow.com/questions/61455381/how-to-replace-startactivityforresult-with-activity-result-apis
-        */
     }
 
     private void uploadImage() {
