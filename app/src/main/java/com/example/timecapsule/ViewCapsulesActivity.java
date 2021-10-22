@@ -1,6 +1,7 @@
 package com.example.timecapsule;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -70,24 +71,22 @@ public class ViewCapsulesActivity extends AppCompatActivity {
 
                     Date currentDate = Calendar.getInstance().getTime();
 
-                    int i = 0;
                     for(DataSnapshot child : task.getResult().getChildren()){
-                        Log.d("firebase", String.valueOf(i));
-                        i++;
-                        Map childData = (Map)child.getValue();
-                        Log.d("firebase", childData.toString());
+                        Map<String, Object> childData = (Map<String, Object>)child.getValue();
+//                        Log.d("firebase", childData.toString());
                         Button myButton = new Button(ViewCapsulesActivity.this);
-                        String buttonText;
 
                         Date childDate;
                         try {
                             childDate =new SimpleDateFormat("MM/dd/yyyy HH:mm").parse(childData.get("opendatetime").toString());
 
                             if(childDate.compareTo(currentDate) > 0){
-                                myButton.setText("LOCKED until: " + childData.get("opendatetime").toString());
+                                String buttonText = "LOCKED until: " + childData.get("opendatetime").toString();
+                                myButton.setText(buttonText);
                             }
                             else{
                                 myButton.setText(childData.get("title").toString());
+                                myButton.setBackgroundColor(Color.CYAN);
                             }
                         } catch (ParseException e) {
                             e.printStackTrace();

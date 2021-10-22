@@ -9,4 +9,6 @@
     <string name="notification_description">Your time capsule is open now!</string>
     <string name="channel_name">channel</string>
     <string name="channel_description">description</string>
+    <string name="my_existing_capsules">My Existing Capsules</string>
+    <string name="main_menu">Main Menu</string>
 </resources>
