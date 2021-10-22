@@ -76,7 +76,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         if (password.length() < 8) {
-            passwordEditText.setError("Password must be greater than 8 characters");
+            passwordEditText.setError("Password must be at least 8 characters");
             return;
         }
         if (!password.matches(".*\\d.*")) {

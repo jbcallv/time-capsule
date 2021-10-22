@@ -49,11 +49,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
-        android:text="Upload Recording"
+        android:backgroundTint="@color/onyx"
+        android:text="Save Record"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:backgroundTint="@color/onyx"
-        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/activity_record_btn_record" />
 </androidx.constraintlayout.widget.ConstraintLayout>

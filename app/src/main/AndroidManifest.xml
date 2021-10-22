@@ -25,10 +25,10 @@
         <activity android:name=".ViewCapsulesActivity"></activity>
         <activity
             android:name=".RegisterActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" /> <!-- hmmm exported? -->
+            android:exported="false" /> <!-- hmmm exported? -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
