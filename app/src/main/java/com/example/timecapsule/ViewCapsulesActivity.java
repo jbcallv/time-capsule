@@ -18,6 +18,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+
 public class ViewCapsulesActivity extends AppCompatActivity {
 
     // help on downloading files:
@@ -60,21 +67,40 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                     Log.e("firebase", "Error getting data", task.getException());
                 }
                 else {
+
+                    Date currentDate = Calendar.getInstance().getTime();
+
                     int i = 0;
                     for(DataSnapshot child : task.getResult().getChildren()){
                         Log.d("firebase", String.valueOf(i));
                         i++;
-                        Log.d("firebase", child.getValue().toString());
+                        Map childData = (Map)child.getValue();
+                        Log.d("firebase", childData.toString());
+                        Button myButton = new Button(ViewCapsulesActivity.this);
+                        String buttonText;
+
+                        Date childDate;
+                        try {
+                            childDate =new SimpleDateFormat("MM/dd/yyyy HH:mm").parse(childData.get("opendatetime").toString());
+
+                            if(childDate.compareTo(currentDate) > 0){
+                                myButton.setText("LOCKED until: " + childData.get("opendatetime").toString());
+                            }
+                            else{
+                                myButton.setText(childData.get("title").toString());
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        LinearLayout layout = (LinearLayout) findViewById(R.id.activity_view_layout);
+                        layout.addView(myButton);
 
                     }
                 }
-            }
-        });
 
-        Button myButton = new Button(this);
-        myButton.setText("Hi");
-        LinearLayout layout = (LinearLayout) findViewById(R.id.activity_view_layout);
-        layout.addView(myButton);
+            }
+
+        });
 
     }
 
