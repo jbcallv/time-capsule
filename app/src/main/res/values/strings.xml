@@ -11,4 +11,8 @@
     <string name="channel_description">description</string>
     <string name="my_existing_capsules">My Existing Capsules</string>
     <string name="main_menu">Main Menu</string>
+    <string name="add_media">Add Media:</string>
+    <string name="camera">camera</string>
+    <string name="gallery">gallery</string>
+    <string name="audio">audio</string>
 </resources>

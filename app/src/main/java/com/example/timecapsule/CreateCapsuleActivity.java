@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -16,9 +17,6 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.icu.text.AlphabeticIndex;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,7 +27,6 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -49,9 +46,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
-public class CreateCapsuleActivity extends AppCompatActivity {
+public class CreateCapsuleActivity extends AppCompatActivity implements AddMediaDialogFragment.NoticeDialogListener{
 
     private static final String TAG = CreateCapsuleActivity.class.getSimpleName();
     private static final String CHANNEL_ID = "0";
@@ -76,11 +72,15 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private int hour;
     private int minute;
 
-    // one of these but for recordActivity
-    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private ActivityResultLauncher<Intent> takePictureActivityResultLauncher;
+    private ActivityResultLauncher<Intent> takeVideoActivityResultLauncher;
+    private ActivityResultLauncher<String> selectPictureActivityResultLauncher;
+    private ActivityResultLauncher<String> selectVideoActivityResultLauncher;
     private String currentPhotoPath;
+    private String currentVideoPath;
 
     private boolean imageUploaded;
+    private boolean videoUploaded;
     public static boolean recordingUploaded;
 
     @Override
@@ -89,6 +89,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_capsule);
 
         imageUploaded = false;
+        videoUploaded = false;
         recordingUploaded = false;
 
         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
@@ -113,7 +114,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         takePictureImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                takePicture();
+                DialogFragment newFragment = new AddMediaDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "media upload options");
             }
         });
 
@@ -148,7 +150,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             }
         });
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
+        takePictureActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -156,6 +158,23 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 }
             }
         });
+
+        selectPictureActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
+            @Override
+            public void onActivityResult(Uri result) {
+                currentPhotoPath = result.toString();
+                imageUploaded = true;
+            }
+        });
+
+        selectVideoActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
+            @Override
+            public void onActivityResult(Uri result) {
+                currentVideoPath = result.toString();
+                videoUploaded = true;
+            }
+        });
+
         createNotificationChannel();
     }
 
@@ -268,8 +287,16 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                     "com.example.timecapsule.fileprovider",
                     photoFile);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            activityResultLauncher.launch(takePictureIntent);
+            takePictureActivityResultLauncher.launch(takePictureIntent);
         }
+    }
+
+    private void selectPicture() {
+        selectPictureActivityResultLauncher.launch("image/*");
+    }
+
+    private void selectVideo() {
+        selectVideoActivityResultLauncher.launch("video/*");
     }
 
     private File createImageFile() throws IOException {
@@ -310,5 +337,30 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onTakePictureClick(DialogFragment dialog) {
+        takePicture();
+    }
+
+    @Override
+    public void onChoosePictureClick(DialogFragment dialog) {
+        selectPicture();
+    }
+
+    @Override
+    public void onTakeVideoClick(DialogFragment dialog) {
+        //takeVideo();
+    }
+
+    @Override
+    public void onChooseVideoClick(DialogFragment dialog) {
+        selectVideo();
+    }
+
+    @Override
+    public void onUploadAudioClick(DialogFragment dialog) {
+        addRecording();
     }
 }
