@@ -34,12 +34,11 @@
         android:id="@+id/activity_add_media_ibtn_gallery"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:foregroundTint="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/activity_add_media_ibtn_audio"
         app:layout_constraintEnd_toStartOf="@+id/activity_add_media_ibtn_audio"
         app:layout_constraintStart_toEndOf="@+id/activity_add_media_ibtn_camera"
         app:layout_constraintTop_toTopOf="@+id/activity_add_media_ibtn_audio"
-        app:srcCompat="@android:drawable/ic_menu_gallery" />
+        app:srcCompat="@drawable/ic_gallery" />
 
     <ImageButton
         android:id="@+id/activity_add_media_ibtn_audio"
@@ -49,7 +48,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/activity_add_media_ibtn_gallery"
         app:layout_constraintTop_toBottomOf="@+id/activity_add_media_tv_add_media"
-        app:srcCompat="@drawable/ic_mic" />
+        app:srcCompat="@drawable/ic_mic"
+        app:tint="@color/black"/>
 
     <TextView
         android:id="@+id/activity_add_media_tv_camera"

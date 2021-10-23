@@ -62,7 +62,6 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
     private TextView timeTextView;
     private EditText titleEditText;
     private EditText descriptionEditText;
-    private FloatingActionButton recordFloatingActionButton;
     private FloatingActionButton addCapsuleFloatingActionButton;
 
     private Calendar calendar;
@@ -101,7 +100,6 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
         timeTextView = (TextView) findViewById(R.id.activity_create_capsule_tv_choose_time);
         titleEditText = (EditText) findViewById(R.id.activity_create_capsule_et_title);
         descriptionEditText = (EditText) findViewById(R.id.activity_create_capsule_et_description);
-        recordFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_record);
         addCapsuleFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_save);
 
         calendar = Calendar.getInstance();
@@ -130,13 +128,6 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
             @Override
             public void onClick(View view) {
                 showTimePickerDialog();
-            }
-        });
-
-        recordFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addRecording();
             }
         });
 
@@ -284,31 +275,32 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
     private void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-
-        // Create the File where the photo should go
-        File photoFile = null;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException ex) {
-            // Error occurred while creating the File
-            Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
-                    Toast.LENGTH_SHORT).show();
-        }
-        // Continue only if the File was successfully created
-        if (photoFile != null) {
-            Uri photoURI = FileProvider.getUriForFile(this,
-                    "com.example.timecapsule.fileprovider",
-                    photoFile);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            takePictureActivityResultLauncher.launch(takePictureIntent);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
+                        Toast.LENGTH_SHORT).show();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.timecapsule.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureActivityResultLauncher.launch(takePictureIntent);
+            }
         }
     }
 
     private void takeVideo() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        //if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             takeVideoActivityResultLauncher.launch(takeVideoIntent);
-        //}
+        }
     }
 
     private void selectPicture() {
