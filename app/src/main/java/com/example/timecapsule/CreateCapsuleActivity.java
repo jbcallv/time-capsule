@@ -76,8 +76,8 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
     private ActivityResultLauncher<Intent> takeVideoActivityResultLauncher;
     private ActivityResultLauncher<String> selectPictureActivityResultLauncher;
     private ActivityResultLauncher<String> selectVideoActivityResultLauncher;
-    private String currentPhotoPath;
-    private String currentVideoPath;
+    private Uri currentPhotoUri;
+    private Uri currentVideoUri;
 
     private boolean imageUploaded;
     private boolean videoUploaded;
@@ -159,10 +159,20 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
             }
         });
 
+        takeVideoActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    videoUploaded = true;
+                    currentVideoUri = result.getData().getData();
+                }
+            }
+        });
+
         selectPictureActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
             @Override
             public void onActivityResult(Uri result) {
-                currentPhotoPath = result.toString();
+                currentPhotoUri = result;
                 imageUploaded = true;
             }
         });
@@ -170,7 +180,7 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
         selectVideoActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
             @Override
             public void onActivityResult(Uri result) {
-                currentVideoPath = result.toString();
+                currentVideoUri = result;
                 videoUploaded = true;
             }
         });
@@ -193,6 +203,9 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
         }
         if (imageUploaded) {
             uploadImage();
+        }
+        if (videoUploaded) {
+            uploadVideo();
         }
     }
 
@@ -291,6 +304,13 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
         }
     }
 
+    private void takeVideo() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        //if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            takeVideoActivityResultLauncher.launch(takeVideoIntent);
+        //}
+    }
+
     private void selectPicture() {
         selectPictureActivityResultLauncher.launch("image/*");
     }
@@ -313,7 +333,7 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
+        currentPhotoUri = Uri.fromFile(new File(image.getAbsolutePath()));
         return image;
     }
 
@@ -324,9 +344,8 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
 
     private void uploadImage() {
         StorageReference filePath = storageReference.child("images").child(auth.getCurrentUser().getUid().toString()).child(postId);
-        Uri uri = Uri.fromFile(new File(currentPhotoPath));
 
-        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        filePath.putFile(currentPhotoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -334,6 +353,22 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
                 }
                 else {
                     Log.e(TAG, "image upload unsuccessful");
+                }
+            }
+        });
+    }
+
+    private void uploadVideo() {
+        StorageReference filePath = storageReference.child("videos").child(auth.getCurrentUser().getUid().toString()).child(postId);
+
+        filePath.putFile(currentVideoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "video upload successful");
+                }
+                else {
+                    Log.e(TAG, "video upload unsuccessful");
                 }
             }
         });
@@ -351,7 +386,7 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
 
     @Override
     public void onTakeVideoClick(DialogFragment dialog) {
-        //takeVideo();
+        takeVideo();
     }
 
     @Override
