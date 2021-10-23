@@ -111,17 +111,4 @@
         app:layout_constraintTop_toTopOf="@+id/activity_create_capsule_img_clock"
         app:layout_constraintVertical_bias="0.531" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/activity_create_capsule_fab_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="32dp"
-        android:clickable="true"
-        app:backgroundTint="@color/light_grey"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_mic" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

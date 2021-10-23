@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -16,9 +17,6 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.icu.text.AlphabeticIndex;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,7 +27,6 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -49,9 +46,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
-public class CreateCapsuleActivity extends AppCompatActivity {
+public class CreateCapsuleActivity extends AppCompatActivity implements AddMediaDialogFragment.NoticeDialogListener{
 
     private static final String TAG = CreateCapsuleActivity.class.getSimpleName();
     private static final String CHANNEL_ID = "0";
@@ -66,7 +62,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private TextView timeTextView;
     private EditText titleEditText;
     private EditText descriptionEditText;
-    private FloatingActionButton recordFloatingActionButton;
     private FloatingActionButton addCapsuleFloatingActionButton;
 
     private Calendar calendar;
@@ -76,11 +71,15 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private int hour;
     private int minute;
 
-    // one of these but for recordActivity
-    private ActivityResultLauncher<Intent> activityResultLauncher;
-    private String currentPhotoPath;
+    private ActivityResultLauncher<Intent> takePictureActivityResultLauncher;
+    private ActivityResultLauncher<Intent> takeVideoActivityResultLauncher;
+    private ActivityResultLauncher<String> selectPictureActivityResultLauncher;
+    private ActivityResultLauncher<String> selectVideoActivityResultLauncher;
+    private Uri currentPhotoUri;
+    private Uri currentVideoUri;
 
     private boolean imageUploaded;
+    private boolean videoUploaded;
     public static boolean recordingUploaded;
 
     @Override
@@ -89,6 +88,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_capsule);
 
         imageUploaded = false;
+        videoUploaded = false;
         recordingUploaded = false;
 
         storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://time-capsule-9f74d.appspot.com");
@@ -100,7 +100,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         timeTextView = (TextView) findViewById(R.id.activity_create_capsule_tv_choose_time);
         titleEditText = (EditText) findViewById(R.id.activity_create_capsule_et_title);
         descriptionEditText = (EditText) findViewById(R.id.activity_create_capsule_et_description);
-        recordFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_record);
         addCapsuleFloatingActionButton = (FloatingActionButton) findViewById(R.id.activity_create_capsule_fab_save);
 
         calendar = Calendar.getInstance();
@@ -113,7 +112,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         takePictureImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                takePicture();
+                DialogFragment newFragment = new AddMediaDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "media upload options");
             }
         });
 
@@ -131,13 +131,6 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             }
         });
 
-        recordFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addRecording();
-            }
-        });
-
         addCapsuleFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,7 +141,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
             }
         });
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
+        takePictureActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -156,6 +149,33 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 }
             }
         });
+
+        takeVideoActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>(){
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    videoUploaded = true;
+                    currentVideoUri = result.getData().getData();
+                }
+            }
+        });
+
+        selectPictureActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
+            @Override
+            public void onActivityResult(Uri result) {
+                currentPhotoUri = result;
+                imageUploaded = true;
+            }
+        });
+
+        selectVideoActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), new ActivityResultCallback<Uri>(){
+            @Override
+            public void onActivityResult(Uri result) {
+                currentVideoUri = result;
+                videoUploaded = true;
+            }
+        });
+
         createNotificationChannel();
     }
 
@@ -174,6 +194,9 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         }
         if (imageUploaded) {
             uploadImage();
+        }
+        if (videoUploaded) {
+            uploadVideo();
         }
     }
 
@@ -252,24 +275,40 @@ public class CreateCapsuleActivity extends AppCompatActivity {
     private void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
+                        Toast.LENGTH_SHORT).show();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.timecapsule.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureActivityResultLauncher.launch(takePictureIntent);
+            }
+        }
+    }
 
-        // Create the File where the photo should go
-        File photoFile = null;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException ex) {
-            // Error occurred while creating the File
-            Toast.makeText(CreateCapsuleActivity.this, "Photo was not saved",
-                    Toast.LENGTH_SHORT).show();
+    private void takeVideo() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            takeVideoActivityResultLauncher.launch(takeVideoIntent);
         }
-        // Continue only if the File was successfully created
-        if (photoFile != null) {
-            Uri photoURI = FileProvider.getUriForFile(this,
-                    "com.example.timecapsule.fileprovider",
-                    photoFile);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            activityResultLauncher.launch(takePictureIntent);
-        }
+    }
+
+    private void selectPicture() {
+        selectPictureActivityResultLauncher.launch("image/*");
+    }
+
+    private void selectVideo() {
+        selectVideoActivityResultLauncher.launch("video/*");
     }
 
     private File createImageFile() throws IOException {
@@ -286,7 +325,7 @@ public class CreateCapsuleActivity extends AppCompatActivity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
+        currentPhotoUri = Uri.fromFile(new File(image.getAbsolutePath()));
         return image;
     }
 
@@ -297,9 +336,8 @@ public class CreateCapsuleActivity extends AppCompatActivity {
 
     private void uploadImage() {
         StorageReference filePath = storageReference.child("images").child(auth.getCurrentUser().getUid().toString()).child(postId);
-        Uri uri = Uri.fromFile(new File(currentPhotoPath));
 
-        filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        filePath.putFile(currentPhotoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -310,5 +348,46 @@ public class CreateCapsuleActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void uploadVideo() {
+        StorageReference filePath = storageReference.child("videos").child(auth.getCurrentUser().getUid().toString()).child(postId);
+
+        filePath.putFile(currentVideoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "video upload successful");
+                }
+                else {
+                    Log.e(TAG, "video upload unsuccessful");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onTakePictureClick(DialogFragment dialog) {
+        takePicture();
+    }
+
+    @Override
+    public void onChoosePictureClick(DialogFragment dialog) {
+        selectPicture();
+    }
+
+    @Override
+    public void onTakeVideoClick(DialogFragment dialog) {
+        takeVideo();
+    }
+
+    @Override
+    public void onChooseVideoClick(DialogFragment dialog) {
+        selectVideo();
+    }
+
+    @Override
+    public void onUploadAudioClick(DialogFragment dialog) {
+        addRecording();
     }
 }

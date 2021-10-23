@@ -6,8 +6,17 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.VIDEO_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -21,8 +30,8 @@
 
         <activity android:name=".RecordActivity" android:theme="@style/RecorderTheme"></activity>
 
-        <activity android:name=".CreateCapsuleActivity"></activity>
-        <activity android:name=".ViewCapsulesActivity"></activity>
+        <activity android:name=".CreateCapsuleActivity" />
+        <activity android:name=".ViewCapsulesActivity" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
@@ -45,7 +54,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 
