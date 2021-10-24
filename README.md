@@ -1,2 +1,3 @@
 # time-capsule
-google doc: https://docs.google.com/document/d/1OZBcfykntzBKGw273BluOjNBGmUs2Xy0jG4ZiLjFw48/edit?usp=sharing
+Project Description: https://docs.google.com/document/d/1qoe3UDFMmq_EvxHHzZ8hir1q3cu43tljrNofJdvwo6c/edit?usp=sharing
+A simple app that allows you to send messages to yourself to be recieved in the future. Supports text, audio recordings, pictures, and videos.
