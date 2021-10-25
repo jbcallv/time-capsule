@@ -1,11 +1,15 @@
 package com.example.timecapsule;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +29,7 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -61,6 +68,7 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(auth.getCurrentUser().getUid()).child("capsules");
 
         Log.v("Jeannine", databaseReference.child(capsuleKey).toString());
+        //Gets Description Text
         databaseReference.child(capsuleKey).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -75,10 +83,23 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
                     descriptionText.setText(childData.get("description").toString());
                 }
             }
-
-
         });
 
+        //Gets static image
+        storageReference.child("images").child(auth.getCurrentUser().getUid()).child(capsuleKey).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener(){
+            @Override
+            public void onSuccess(Object o) {
+                byte[] bytes = (byte[]) o;
+                ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
+                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                capsuleImage.setImageBitmap(bmp);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
 
     }
 }
