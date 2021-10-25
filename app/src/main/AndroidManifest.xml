@@ -32,6 +32,7 @@
 
         <activity android:name=".CreateCapsuleActivity" />
         <activity android:name=".ViewCapsulesActivity" />
+        <activity android:name=".ViewSingleCapsuleActivity"/>
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
