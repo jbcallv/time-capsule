@@ -39,6 +39,19 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/viewSingleCapsuleDescriptionText"/>
 
+<!--        <MediaController-->
+<!--            android:id="@+id/viewSingleCapsuleVideoPlayer"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/viewSingleCapsuleImage" >-->
+
+            <VideoView
+                android:id="@+id/viewSingleCapsuleVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+<!--        </MediaController>-->
+
     </LinearLayout>
 
     <Button

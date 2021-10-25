@@ -6,12 +6,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -86,20 +89,58 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
         });
 
         //Gets static image
-        storageReference.child("images").child(auth.getCurrentUser().getUid()).child(capsuleKey).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener(){
-            @Override
-            public void onSuccess(Object o) {
-                byte[] bytes = (byte[]) o;
-                ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                capsuleImage.setImageBitmap(bmp);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-            }
-        });
+        try {
+            storageReference.child("images").child(auth.getCurrentUser().getUid()).child(capsuleKey).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    byte[] bytes = (byte[]) o;
+                    ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
+                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    capsuleImage.setImageBitmap(bmp);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
+        }
+        catch (Exception e){
+
+        }
+
+        //Gets video image
+        if(storageReference.child("videos").child(auth.getCurrentUser().getUid()).child(capsuleKey) != null) {
+
+            storageReference.child("videos").child(auth.getCurrentUser().getUid()).child(capsuleKey).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    VideoView capsuleVideo = findViewById(R.id.viewSingleCapsuleVideo);
+                    capsuleVideo.setVideoURI(uri);
+                    capsuleVideo.setVisibility(View.VISIBLE);
+                    capsuleVideo.requestFocus();
+                    capsuleVideo.start();
+                    MediaController ctlr = new MediaController(ViewSingleCapsuleActivity.this);
+//                    ctlr.setMediaPlayer(capsuleVideo);
+                    capsuleVideo.setMediaController(ctlr);
+//                    capsuleVideo.requestFocus();
+                }
+            });
+//            storageReference.child("video").child(auth.getCurrentUser().getUid()).child(capsuleKey).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener() {
+//                @Override
+//                public void onSuccess(Object o) {
+//                    byte[] bytes = (byte[]) o;
+//                    ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
+//                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                    capsuleImage.setImageBitmap(bmp);
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception exception) {
+//                    // Handle any errors
+//                }
+//            });
+        }
 
     }
 }
