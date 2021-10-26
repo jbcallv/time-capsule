@@ -141,6 +141,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:text="@string/open_on_text"
+        android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/activity_create_capsule_tv_choose_date"
         app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +154,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginTop="72dp"
-        android:text="@string/time_capsule_text"
+        android:text="@string/create_a_capsule_text"
+        android:textColor="@color/purple_700"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
