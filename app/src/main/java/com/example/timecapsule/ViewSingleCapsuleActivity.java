@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Layout;
@@ -32,6 +34,7 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,6 +49,8 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String postId;
     private Button backButton;
+
+    private MediaPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -70,7 +75,6 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(auth.getCurrentUser().getUid()).child("capsules");
 
-        Log.v("Jeannine", databaseReference.child(capsuleKey).toString());
         //Gets Description Text
         databaseReference.child(capsuleKey).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -126,21 +130,32 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
 //                    capsuleVideo.requestFocus();
                 }
             });
-//            storageReference.child("video").child(auth.getCurrentUser().getUid()).child(capsuleKey).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener() {
-//                @Override
-//                public void onSuccess(Object o) {
-//                    byte[] bytes = (byte[]) o;
-//                    ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
-//                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                    capsuleImage.setImageBitmap(bmp);
-//                }
-//            }).addOnFailureListener(new OnFailureListener() {
-//                @Override
-//                public void onFailure(@NonNull Exception exception) {
-//                    // Handle any errors
-//                }
-//            });
+
         }
 
+        storageReference.child("audio").child(auth.getCurrentUser().getUid()).child(capsuleKey).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                player = new MediaPlayer();
+                try {
+                    Log.v("Jeannine", uri.toString());
+                    player.setDataSource(uri.toString());
+                    player.prepare();
+                    player.start();
+                } catch (IOException e) {
+                    Log.e("Jeannine", "prepare() failed");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (player != null) {
+            player.release();
+            player = null;
+        }
     }
 }
