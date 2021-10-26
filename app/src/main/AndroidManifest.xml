@@ -28,17 +28,11 @@
 
         <receiver android:name=".AlarmReceiver" />
 
-        <activity android:name=".RecordActivity" android:theme="@style/RecorderTheme">
-            android:exported="false"
-        </activity>
+        <activity android:name=".RecordActivity" android:theme="@style/RecorderTheme"></activity>
 
-        <activity android:name=".CreateCapsuleActivity">
-        android:exported="false"
-        </activity>
-
-        <activity android:name=".ViewCapsulesActivity" >
-            android:exported="false"
-        </activity>
+        <activity android:name=".CreateCapsuleActivity" />
+        <activity android:name=".ViewCapsulesActivity" />
+        <activity android:name=".ViewSingleCapsuleActivity"/>
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />

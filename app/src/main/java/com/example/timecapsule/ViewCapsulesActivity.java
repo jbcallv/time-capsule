@@ -70,12 +70,17 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                 else {
 
                     Date currentDate = Calendar.getInstance().getTime();
+                    Log.v("Jeannine", task.getResult().toString());
+                    Log.v("Jeannine", task.getResult().getChildren().toString());
+                    Log.v("Jeannine key?", task.getResult().getKey());
 
                     for(DataSnapshot child : task.getResult().getChildren()){
+                        Log.v("Jeannine key", child.getKey());
+                        String key = child.getKey();
                         Map<String, Object> childData = (Map<String, Object>)child.getValue();
-//                        Log.d("firebase", childData.toString());
                         Button myButton = new Button(ViewCapsulesActivity.this);
 
+                        Log.v("Jeannine", childData.toString());
                         Date childDate;
                         try {
                             childDate =new SimpleDateFormat("MM/dd/yyyy HH:mm").parse(childData.get("opendatetime").toString());
@@ -87,11 +92,21 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                             else{
                                 myButton.setText(childData.get("title").toString());
                                 myButton.setBackgroundColor(Color.CYAN);
+                                Bundle bundle = new Bundle();
+                                myButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(ViewCapsulesActivity.this, ViewSingleCapsuleActivity.class);
+                                        intent.putExtra("dataKey", key);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                });
                             }
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-                        LinearLayout layout = (LinearLayout) findViewById(R.id.activity_view_layout);
+                        LinearLayout layout = findViewById(R.id.activity_view_layout);
                         layout.addView(myButton);
 
                     }

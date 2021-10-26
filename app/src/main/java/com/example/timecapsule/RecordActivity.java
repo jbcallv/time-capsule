@@ -1,14 +1,10 @@
 package com.example.timecapsule;
 
 import android.Manifest;
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.icu.text.AlphabeticIndex;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,18 +16,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 public class RecordActivity extends AppCompatActivity {
 
@@ -110,6 +100,7 @@ public class RecordActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //uploadAudio();
                 CreateCapsuleActivity.recordingUploaded = true;
+                Toast.makeText(RecordActivity.this, "Recording uploaded", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
