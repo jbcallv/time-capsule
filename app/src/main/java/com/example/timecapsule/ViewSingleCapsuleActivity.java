@@ -158,4 +158,12 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
             player = null;
         }
     }
+
+    @Override
+    public void onBackPressed(){
+        //Go back to MainActivity
+        Intent intent = new Intent(ViewSingleCapsuleActivity.this, ViewCapsulesActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

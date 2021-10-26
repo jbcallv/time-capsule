@@ -1,5 +1,6 @@
 package com.example.timecapsule;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -409,5 +410,13 @@ public class CreateCapsuleActivity extends AppCompatActivity implements AddMedia
     public void onUploadAudioClick(DialogFragment dialog) {
         addRecording();
         dialog.dismiss();
+    }
+
+    @Override
+    public void onBackPressed(){
+        //Go back to MainActivity
+        Intent intent = new Intent(CreateCapsuleActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
