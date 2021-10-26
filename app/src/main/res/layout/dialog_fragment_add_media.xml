@@ -16,7 +16,7 @@
         android:layout_marginTop="20dp"
         android:text="@string/add_media"
         android:textColor="@color/black"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
