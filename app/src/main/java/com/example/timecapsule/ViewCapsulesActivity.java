@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -41,8 +42,9 @@ public class ViewCapsulesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_capsules);
-        mainMenuButton = findViewById(R.id.mainMenuButton);
 
+        //Set up the main menu button
+        mainMenuButton = findViewById(R.id.mainMenuButton);
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,14 +54,11 @@ public class ViewCapsulesActivity extends AppCompatActivity {
             }
         });
 
-        Log.v("Jeannine", "WHY");
+
+        //Get capsule info from database
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com").getReference("Users");
-        Log.v("Jeannine", "hello wolrd");
-        Log.v("Jeannine", currentUser.getUid());
-
-        Log.v("Jeannine", String.valueOf(database.child("Users").child(currentUser.getUid()).child("capsules").get()));
 
         database.child(currentUser.getUid()).child("capsules").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -70,29 +69,30 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                 else {
 
                     Date currentDate = Calendar.getInstance().getTime();
-                    Log.v("Jeannine", task.getResult().toString());
-                    Log.v("Jeannine", task.getResult().getChildren().toString());
-                    Log.v("Jeannine key?", task.getResult().getKey());
+
 
                     for(DataSnapshot child : task.getResult().getChildren()){
-                        Log.v("Jeannine key", child.getKey());
                         String key = child.getKey();
                         Map<String, Object> childData = (Map<String, Object>)child.getValue();
                         Button myButton = new Button(ViewCapsulesActivity.this);
 
-                        Log.v("Jeannine", childData.toString());
                         Date childDate;
+
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         try {
                             childDate =new SimpleDateFormat("MM/dd/yyyy HH:mm").parse(childData.get("opendatetime").toString());
 
+                            //If capsule open data isn't here yet, button is locked
                             if(childDate.compareTo(currentDate) > 0){
                                 String buttonText = "LOCKED until: " + childData.get("opendatetime").toString();
                                 myButton.setText(buttonText);
                             }
+                            //If capsule is open, make a working button
                             else{
                                 myButton.setText(childData.get("title").toString());
                                 myButton.setBackgroundColor(Color.CYAN);
-                                Bundle bundle = new Bundle();
+                                params.topMargin = 5;
+                                params.bottomMargin = 5;
                                 myButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -107,7 +107,7 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         LinearLayout layout = findViewById(R.id.activity_view_layout);
-                        layout.addView(myButton);
+                        layout.addView(myButton, params);
 
                     }
                 }
