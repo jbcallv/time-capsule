@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -33,17 +32,33 @@
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@id/viewSingleCapsuleTitleText"/>
 
-        <ImageView
-            android:id="@+id/viewSingleCapsuleImage"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:id="@+id/activity_view_image_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/viewSingleCapsuleDescriptionText"/>
+            android:gravity="center_horizontal|center_vertical"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/viewSingleCapsuleImage"
+                android:layout_width="wrap_content"
+                android:layout_height="250dp"
+                android:layout_margin="10dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/viewSingleCapsuleVideo"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <VideoView
                 android:id="@+id/viewSingleCapsuleVideo"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="invisible"/>
+                android:layout_height="250dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/viewSingleCapsuleImage" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -52,6 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/back"
+        android:backgroundTint="@color/onyx"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

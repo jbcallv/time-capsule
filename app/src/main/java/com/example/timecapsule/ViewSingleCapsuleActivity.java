@@ -47,7 +47,6 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
-    private String postId;
     private Button backButton;
 
     private MediaPlayer player;
@@ -99,6 +98,7 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
                 public void onSuccess(Object o) {
                     byte[] bytes = (byte[]) o;
                     ImageView capsuleImage = findViewById(R.id.viewSingleCapsuleImage);
+                    capsuleImage.setVisibility(View.VISIBLE);
                     Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                     capsuleImage.setImageBitmap(bmp);
                 }
@@ -125,25 +125,23 @@ public class ViewSingleCapsuleActivity extends AppCompatActivity {
                     capsuleVideo.requestFocus();
                     capsuleVideo.start();
                     MediaController ctlr = new MediaController(ViewSingleCapsuleActivity.this);
-//                    ctlr.setMediaPlayer(capsuleVideo);
                     capsuleVideo.setMediaController(ctlr);
-//                    capsuleVideo.requestFocus();
                 }
             });
 
         }
 
+        //Gets audio file
         storageReference.child("audio").child(auth.getCurrentUser().getUid()).child(capsuleKey).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 player = new MediaPlayer();
                 try {
-                    Log.v("Jeannine", uri.toString());
                     player.setDataSource(uri.toString());
                     player.prepare();
                     player.start();
                 } catch (IOException e) {
-                    Log.e("Jeannine", "prepare() failed");
+                    Log.e("audio", "prepare() failed");
                 }
             }
         });
