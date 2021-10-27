@@ -151,4 +151,8 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        goToLoginScreen();
+    }
 }

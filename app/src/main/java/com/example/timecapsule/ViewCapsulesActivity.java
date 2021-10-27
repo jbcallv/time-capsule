@@ -5,12 +5,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,9 +52,14 @@ public class ViewCapsulesActivity extends AppCompatActivity {
             }
         });
 
+        Log.v("Jeannine", "WHY");
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance("https://time-capsule-9f74d-default-rtdb.firebaseio.com").getReference("Users");
+        Log.v("Jeannine", "hello wolrd");
+        Log.v("Jeannine", currentUser.getUid());
+
+        Log.v("Jeannine", String.valueOf(database.child("Users").child(currentUser.getUid()).child("capsules").get()));
 
         database.child(currentUser.getUid()).child("capsules").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -67,15 +70,18 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                 else {
 
                     Date currentDate = Calendar.getInstance().getTime();
+                    Log.v("Jeannine", task.getResult().toString());
+                    Log.v("Jeannine", task.getResult().getChildren().toString());
+                    Log.v("Jeannine key?", task.getResult().getKey());
 
                     for(DataSnapshot child : task.getResult().getChildren()){
+                        Log.v("Jeannine key", child.getKey());
                         String key = child.getKey();
                         Map<String, Object> childData = (Map<String, Object>)child.getValue();
                         Button myButton = new Button(ViewCapsulesActivity.this);
 
+                        Log.v("Jeannine", childData.toString());
                         Date childDate;
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                        params.bottomMargin = 9;
                         try {
                             childDate =new SimpleDateFormat("MM/dd/yyyy HH:mm").parse(childData.get("opendatetime").toString());
 
@@ -86,6 +92,7 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                             else{
                                 myButton.setText(childData.get("title").toString());
                                 myButton.setBackgroundColor(Color.CYAN);
+                                Bundle bundle = new Bundle();
                                 myButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -100,7 +107,7 @@ public class ViewCapsulesActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         LinearLayout layout = findViewById(R.id.activity_view_layout);
-                        layout.addView(myButton, params);
+                        layout.addView(myButton);
 
                     }
                 }

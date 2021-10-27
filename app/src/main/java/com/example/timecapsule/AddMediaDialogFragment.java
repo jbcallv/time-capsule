@@ -117,7 +117,5 @@ public class AddMediaDialogFragment extends DialogFragment {
         });
 
         return builder.create();
-
-
     }
 }
