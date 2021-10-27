@@ -16,4 +16,13 @@
     <string name="gallery">gallery</string>
     <string name="audio">audio</string>
     <string name="back">Back</string>
+    <string name="open_on_text">Open on:</string>
+    <string name="time_capsule_text">Time Capsule</string>
+    <string name="upload_button_desc">button for uploading media to capsule</string>
+    <string name="email_text">Email:</string>
+    <string name="password_text">Password:</string>
+    <string name="register_text">Register here</string>
+    <string name="login_text">Log In</string>
+    <string name="forgot_pass_text">Forgot Password?</string>
+    <string name="create_a_capsule_text">Create Capsule</string>
 </resources>

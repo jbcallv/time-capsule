@@ -30,9 +30,12 @@
 
         <activity android:name=".RecordActivity" android:theme="@style/RecorderTheme"></activity>
 
-        <activity android:name=".CreateCapsuleActivity" />
-        <activity android:name=".ViewCapsulesActivity" />
-        <activity android:name=".ViewSingleCapsuleActivity"/>
+        <activity android:name=".CreateCapsuleActivity"
+            android:exported="false" />
+        <activity android:name=".ViewCapsulesActivity"
+            android:exported="false" />
+        <activity android:name=".ViewSingleCapsuleActivity"
+            android:exported="false" />/>
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />

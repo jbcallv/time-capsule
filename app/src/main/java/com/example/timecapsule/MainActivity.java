@@ -32,6 +32,12 @@ public class MainActivity extends AppCompatActivity {
         createCapsuleButton = (Button) findViewById(R.id.activity_main_btn_create_capsule);
         viewCapsulesButton = (Button) findViewById(R.id.activity_main_btn_view_capsules);
 
+        //set OnClick listeners for components
+        setListeners();
+
+    }
+
+    private void setListeners(){
         createCapsuleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

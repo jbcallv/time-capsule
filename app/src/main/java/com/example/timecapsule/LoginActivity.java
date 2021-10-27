@@ -48,6 +48,10 @@ public class LoginActivity extends AppCompatActivity {
         forgotPasswordTextView = (TextView) findViewById(R.id.activity_login_tv_forgot_password);
         registerTextView = (TextView) findViewById(R.id.activity_login_tv_register);
 
+        setListeners();
+    }
+
+    private void setListeners(){
         // confirm email and password entered
         logInButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -30,7 +30,7 @@ public class RecordActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private StorageReference storageReference;
 
-    public static String fileName;
+    private static String fileName;
 
     private FloatingActionButton recordButton;
     private FloatingActionButton playButton;
@@ -60,8 +60,8 @@ public class RecordActivity extends AppCompatActivity {
 
         // TODO: find better storage location
         // Record to the external cache directory for visibility
-        fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/audioFile";
+        setFileName(getExternalCacheDir().getAbsolutePath());
+        setFileName(getFileName() + "/audioFile");
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
@@ -99,7 +99,7 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //uploadAudio();
-                CreateCapsuleActivity.recordingUploaded = true;
+                CreateCapsuleActivity.setRecordingUploaded(true);
                 Toast.makeText(RecordActivity.this, "Recording uploaded", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -140,7 +140,7 @@ public class RecordActivity extends AppCompatActivity {
         player = new MediaPlayer();
         try {
             Log.i(TAG, "preparing to play");
-            player.setDataSource(fileName);
+            player.setDataSource(getFileName());
             player.prepare();
             player.start();
         } catch (IOException e) {
@@ -157,7 +157,7 @@ public class RecordActivity extends AppCompatActivity {
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setOutputFile(fileName);
+        recorder.setOutputFile(getFileName());
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try {
@@ -187,5 +187,13 @@ public class RecordActivity extends AppCompatActivity {
             player.release();
             player = null;
         }
+    }
+
+    public static String getFileName() {
+        return fileName;
+    }
+
+    public static void setFileName(String fileName) {
+        RecordActivity.fileName = fileName;
     }
 }

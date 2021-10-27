@@ -111,5 +111,13 @@ public class ViewCapsulesActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed(){
+        //Go back to MainActivity
+        Intent intent = new Intent(ViewCapsulesActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
 
 }
